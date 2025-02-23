@@ -1,0 +1,48 @@
+const CardData = [
+  {
+    id: 1,
+    name: 'Classic Cotton T-Shirt',
+    description: 'Soft and breathable cotton T-shirt, perfect for everyday wear.',
+    img: 'https://example.com/classic-tshirt.jpg',
+    price: 499,
+    Dprice: 699,
+    Off: '30% Off',
+    rating: 4.5,
+    likes: 1200,
+  },
+  {
+    id: 2,
+    name: 'Graphic Print T-Shirt',
+    description: 'Trendy graphic print T-shirt made from high-quality fabric.',
+    img: 'https://example.com/graphic-tshirt.jpg',
+    price: 599,
+    Dprice: 899,
+    Off: '35% Off',
+    rating: 4.7,
+    likes: 1800,
+  },
+  {
+    id: 3,
+    name: 'Oversized Streetwear Tee',
+    description: 'A stylish oversized T-shirt with a relaxed fit.',
+    img: 'https://example.com/oversized-tee.jpg',
+    price: 799,
+    Dprice: 1099,
+    Off: '27% Off',
+    rating: 4.8,
+    likes: 2300,
+  },
+  {
+    id: 4,
+    name: 'Sports Performance T-Shirt',
+    description: 'Breathable and sweat-wicking T-shirt for active lifestyles.',
+    img: 'https://example.com/sports-tshirt.jpg',
+    price: 699,
+    Dprice: 999,
+    Off: '30% Off',
+    rating: 4.6,
+    likes: 1500,
+  },
+];
+
+export default CardData;
