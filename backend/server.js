@@ -40,5 +40,5 @@ app.use("/api/cards", require("./routes/cardRoutes")); // Add this line
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-const cors = require("cors");
-app.use(cors({ origin: "*" }));
+// const cors = require("cors");
+// app.use(cors({ origin: "*" }));
