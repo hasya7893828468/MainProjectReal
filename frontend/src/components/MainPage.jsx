@@ -1,10 +1,18 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import Navbar from '../assets/component/NavBar/NavBar.jsx';
 import CardAdd from './CardAdd.jsx';
 
 const MainPage = () => {
   const [cart, setCart] = useState ([]);
   const [searchValue, setSearchValue] = useState ('');
+  const [userName, setUserName] = useState (''); // ✅ Store logged-in user's name
+
+  useEffect (() => {
+    const storedUserName = localStorage.getItem ('userName');
+    if (storedUserName) {
+      setUserName (storedUserName);
+    }
+  }, []);
 
   const addToCart = item => {
     setCart (prevCart => {
@@ -21,10 +29,6 @@ const MainPage = () => {
         : [...prevCart, {...item, quantity: 1}];
     });
   };
-
-  // const addToCart = (item) => {
-  //   setCart((prevCart) => [...prevCart, { ...item, uniqueId: Date.now() }]);
-  // };
 
   const updateQuantity = (id, delta) => {
     setCart (prevCart =>
@@ -49,6 +53,7 @@ const MainPage = () => {
         removeFromCart={removeFromCart}
         searchValue={searchValue}
         setSearchValue={setSearchValue}
+        userName={userName} // ✅ Pass userName to Navbar
       />
       <CardAdd addToCart={addToCart} searchValue={searchValue} />
     </div>

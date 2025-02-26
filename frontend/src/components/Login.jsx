@@ -9,16 +9,36 @@ const Login = () => {
   const [password, setPassword] = useState ('');
   const navigate = useNavigate ();
 
+  // const handleSubmit = async e => {
+  //   e.preventDefault ();
+  //   try {
+  //     const response = await axios.post (apiUrl, {email, password});
+
+  //     if (response.data.success) {
+  //       // If login is successful, redirect to the main page
+  //       navigate ('/main');
+  //     } else {
+  //       // If login fails, show an error message
+  //       alert ('Login failed. Please check your credentials.');
+  //     }
+  //   } catch (error) {
+  //     console.error ('Error:', error);
+  //     alert ('Login failed. Please check your backend.');
+  //   }
+  // };
+
   const handleSubmit = async e => {
     e.preventDefault ();
     try {
       const response = await axios.post (apiUrl, {email, password});
 
       if (response.data.success) {
-        // If login is successful, redirect to the main page
-        navigate ('/main');
+        // ✅ Store userId and userName in localStorage
+        localStorage.setItem ('userId', response.data.userId);
+        localStorage.setItem ('userName', response.data.userName);
+
+        navigate ('/main'); // Redirect after login
       } else {
-        // If login fails, show an error message
         alert ('Login failed. Please check your credentials.');
       }
     } catch (error) {
@@ -81,8 +101,20 @@ const Login = () => {
           <Link to="/signup" className="text-blue-500 hover:text-blue-700">
             Sign up
           </Link>
+
         </p>
+        <div className="text-center mt-3  text-xl">
+          <b>
+            <Link
+              to="/vendor-login"
+              className="text-blue-500  hover:text-blue-700"
+            >
+              Vendor Login
+            </Link>
+          </b>
+        </div>
       </div>
+
     </div>
   );
 };

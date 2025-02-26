@@ -40,29 +40,57 @@ router.post('/register', async (req, res) => {
   }
 });
 
+// router.post('/login', async (req, res) => {
+//   const { email, password } = req.body;
+
+//   try {
+//     // Check if user exists
+//     const user = await User.findOne({ email });
+//     if (!user) {
+//       return res.status(400).json({ msg: 'User not found' });
+//     }
+
+//     // Check if password matches
+//     const isMatch = await bcrypt.compare(password, user.password);
+//     if (!isMatch) {
+//       return res.status(400).json({ msg: 'Invalid credentials' });
+//     }
+
+//     // Send success response
+//     res.status(200).json({ success: true, msg: 'Login successful' });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ msg: 'Server error' });
+//   }
+// });
+
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // Check if user exists
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ msg: 'User not found' });
     }
 
-    // Check if password matches
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(400).json({ msg: 'Invalid credentials' });
     }
 
-    // Send success response
-    res.status(200).json({ success: true, msg: 'Login successful' });
+    // ✅ Return userId and userName in response
+    res.status(200).json({
+      success: true,
+      msg: 'Login successful',
+      userId: user._id,
+      userName: user.name,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: 'Server error' });
   }
 });
+  
 
 module.exports = router;
 

@@ -1,46 +1,66 @@
 import {useEffect, useState} from 'react';
-import {ShoppingCart, ShoppingBag, X, Plus, Minus} from 'lucide-react';
+import {ShoppingCart, ShoppingBag, X, Plus, Minus, Menu} from 'lucide-react';
 import {Link} from 'react-router-dom';
+import axios from 'axios';
 
-const NavBar = ({
-  cart,
-  updateQuantity,
-  removeFromCart,
-  searchValue,
-  setSearchValue,
-}) => {
+const NavBar = ({cart, updateQuantity, removeFromCart}) => {
   const [isCartOpen, setIsCartOpen] = useState (false);
+  const [isMenuOpen, setIsMenuOpen] = useState (false);
+  const [userName, setUserName] = useState ('');
+
+  useEffect (() => {
+    setUserName (localStorage.getItem ('userName') || 'Guest');
+  }, []);
 
   const toggleCart = () => {
     setIsCartOpen (prev => !prev);
   };
 
-  useEffect (
-    () => {
-      const handleClickOutside = event => {
-        if (
-          !event.target.closest ('.cart-sidebar') &&
-          !event.target.closest ('.cart-icon')
-        ) {
-          setIsCartOpen (false);
-        }
-      };
-
-      if (isCartOpen) {
-        document.addEventListener ('click', handleClickOutside);
-      } else {
-        document.removeEventListener ('click', handleClickOutside);
-      }
-
-      return () => document.removeEventListener ('click', handleClickOutside);
-    },
-    [isCartOpen]
-  );
+  const toggleMenu = () => {
+    setIsMenuOpen (prev => !prev);
+  };
 
   const totalAmount = cart.reduce (
     (total, item) => total + item.price * item.quantity,
     0
   );
+  const handleOrderNow = async () => {
+    const vendorId = localStorage.getItem ('vendorId');
+    const userId = localStorage.getItem ('userId');
+    const userName = localStorage.getItem ('userName'); // ✅ Get user's name
+
+    if (!vendorId || !userId || !userName) {
+      alert ('User not logged in properly!');
+      return;
+    }
+
+    const orderData = {
+      vendorId,
+      userId,
+      userName, // ✅ Ensure userName is sent
+      cartItems: cart.map (item => ({
+        name: item.name,
+        img: item.img,
+        price: item.price,
+        quantity: item.quantity,
+        totalPrice: item.price * item.quantity,
+      })),
+    };
+
+    console.log ('📦 Sending Order Data:', orderData); // ✅ Debugging Step
+
+    try {
+      const response = await axios.post (
+        'http://localhost:5000/api/vendor-cart/add-order',
+        orderData
+      );
+      console.log ('✅ Order Response:', response.data);
+      alert ('Order placed successfully!');
+    } catch (error) {
+      console.error ('❌ Order error:', error);
+      alert ('Failed to place order');
+    }
+  };
 
   return (
     <div>
@@ -49,54 +69,64 @@ const NavBar = ({
           {/* Store Logo */}
           <div className="flex items-center space-x-2">
             <ShoppingBag className="w-8 h-8 text-black" />
-            <span className="font-bold text-xl text-black">ShivaStore</span>
+            <span className="font-bold text-xl text-amber-500">ShivaStore</span>
+            <span className="text-gray-600 text-sm ml-3">👤 {userName}</span>
           </div>
 
-          {/* Search Bar */}
-          <div className="hidden lg:flex items-center flex-grow justify-center">
-            <input
-              type="search"
-              placeholder="Search products..."
-              value={searchValue}
-              onChange={e => setSearchValue (e.target.value)}
-              className="p-2 w-80 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          {/* Toggle Menu Icon for Small Screens */}
+          <div className="lg:hidden flex items-center">
+            <Menu
+              className="w-8 h-8 cursor-pointer text-black"
+              onClick={toggleMenu}
             />
           </div>
 
-          {/* Login, Signup & Cart */}
-          <div className="flex items-center space-x-6">
-            {/* Login & Sign Up */}
-            <div className="hidden lg:flex items-center space-x-4">
-              <Link to="/login">
-                <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-1 rounded-full transition-all transform hover:scale-105">
-                  Login
-                </button>
-              </Link>
-              <Link to="/signup">
-                <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-1 rounded-full transition-all transform hover:scale-105">
-                  Sign Up
-                </button>
-              </Link>
-            </div>
+          {/* Login, Signup (Visible on Large Screens) */}
+          <div className="hidden lg:flex items-center space-x-4">
+            <Link to="/login">
+              <button className="bg-amber-500 hover:bg-amber-500 text-white px-6 py-1 rounded-full transition-all transform hover:scale-105">
+                Login
+              </button>
+            </Link>
+            <Link to="/signup">
+              <button className="bg-amber-500 hover:bg-amber-500 text-white px-6 py-1 rounded-full transition-all transform hover:scale-105">
+                Sign Up
+              </button>
+            </Link>
+          </div>
 
-            {/* Cart Icon */}
-            <div className="relative">
-              <ShoppingCart
-                className="w-10 h-10 cursor-pointer text-black cart-icon"
-                onClick={toggleCart}
-              />
-              {cart.length > 0 &&
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                  {cart.reduce ((total, item) => total + item.quantity, 0)}
-                </span>}
-            </div>
+          {/* Cart Icon */}
+          <div className="relative">
+            <ShoppingCart
+              className="w-10 h-10 cursor-pointer text-black cart-icon"
+              onClick={toggleCart}
+            />
+            {cart.length > 0 &&
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                {cart.reduce ((total, item) => total + item.quantity, 0)}
+              </span>}
           </div>
         </div>
       </nav>
 
-      {/* Cart Sidebar */}
+      {/* Login & Signup Dropdown (Small Screens) */}
+      {isMenuOpen &&
+        <div className="absolute top-14 right-4 bg-white shadow-md rounded-lg p-4 flex flex-col space-y-2 z-50">
+          <Link to="/login">
+            <button className="bg-amber-500 hover:bg-amber-500 text-white w-full px-4 py-2 rounded-md">
+              Login
+            </button>
+          </Link>
+          <Link to="/signup">
+            <button className="bg-amber-500 hover:bg-amber-500 text-white w-full px-4 py-2 rounded-md">
+              Sign Up
+            </button>
+          </Link>
+        </div>}
+
+      {/* ✅ Cart Sidebar (Now Fully Responsive on Small Screens) */}
       <div
-        className={`fixed top-0 right-0 w-1/3 h-full bg-white shadow-lg p-4 transform transition-transform cart-sidebar ${isCartOpen ? 'translate-x-0' : 'translate-x-full'}`}
+        className={`fixed top-0 right-0 w-full sm:w-1/3 h-full bg-white shadow-lg p-4 transform transition-transform ${isCartOpen ? 'translate-x-0' : 'translate-x-full'} z-50 overflow-y-auto`}
       >
         {/* Close Button */}
         <button
@@ -106,7 +136,7 @@ const NavBar = ({
           <X className="w-5 h-5" />
         </button>
 
-        <h2 className="text-lg font-semibold mb-4 pt-20">Your Cart</h2>
+        <h2 className="text-lg font-semibold mb-4 pt-10">Your Cart</h2>
 
         {/* Scrollable Cart Items */}
         <div className="overflow-y-auto h-[65vh] pr-2">
@@ -119,12 +149,9 @@ const NavBar = ({
                 >
                   {/* Product Image */}
                   <img
-                    src={`http://localhost:5000${item.img}`} // FIX: Remove extra "/"
+                    src={`http://localhost:5000${item.img}`}
                     alt={item.name}
                     className="w-20 h-20 object-cover rounded-t-lg"
-                    //   onError={e =>
-                    //     (e.target.src = 'https://via.placeholder.com/150')} // Placeholder if image fails
-                    //
                   />
 
                   <div className="flex-1">
@@ -161,12 +188,20 @@ const NavBar = ({
               ))}
         </div>
 
-        {/* Total Amount */}
-        <div className="text-md font-semibold mt-3 border-t pt-3 text-center">
-          Total Amount:{' '}
-          <span className="text-lg font-bold text-green-600">
-            ₹{totalAmount.toFixed (2)}
+        {/* Total Amount & Order Now Button */}
+        <div className="flex justify-between items-center mt-3 border-t pt-3 mb-3 px-4">
+          <span className="text-md font-semibold">
+            Total:
+            <span className="text-lg font-bold text-green-600">
+              ₹{totalAmount.toFixed (2)}
+            </span>
           </span>
+          <button
+            onClick={handleOrderNow}
+            className=" bg-amber-500 hover:bg-green-700 text-white px-4 py-2 rounded-md transition-all"
+          >
+            🛍️ Order Now
+          </button>
         </div>
       </div>
     </div>
