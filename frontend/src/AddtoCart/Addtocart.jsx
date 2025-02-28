@@ -1,7 +1,7 @@
 import React from 'react';
 import Cards from './Cards';
 import NavBar from './Navbar';
-import CartPage from './CartPage';
+// import CartPage from './CartPage';
 
 const AddtoCart = ({ cart, addToCart }) => {
   return (

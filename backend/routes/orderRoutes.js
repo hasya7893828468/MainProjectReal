@@ -1,29 +1,36 @@
-// const express = require("express");
-// const router = express.Router();
-// const Order = require("../models/Order");
+const express = require("express");
+const router = express.Router();
+const Order = require("../models/Order");
 
-// // ✅ Order Placement Route
-// router.post("/add-order", async (req, res) => {
-//   try {
-//     const { vendorId, userId, userName, cartItems } = req.body;
+// ✅ Add Order (Place Order)
+router.post("/add-order", async (req, res) => {
+  try {
+    const newOrder = new Order(req.body);
+    await newOrder.save();
+    res.status(201).json({ message: "Order placed successfully", newOrder });
+  } catch (error) {
+    res.status(500).json({ message: "Error placing order", error });
+  }
+});
 
-//     if (!vendorId || !userId || !userName || !cartItems.length) {
-//       return res.status(400).json({ error: "Missing required fields" });
-//     }
+// ✅ Get Orders for Vendor
+router.get("/:vendorId", async (req, res) => {
+  try {
+    const orders = await Order.find({ vendorId: req.params.vendorId });
+    res.status(200).json(orders);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching orders", error });
+  }
+});
 
-//     const newOrder = new Order({
-//       vendorId,
-//       userId,
-//       userName, // ✅ Save userName in the order
-//       cartItems
-//     });
+// ✅ Mark Order as Completed
+router.post("/complete-order", async (req, res) => {
+  try {
+    await Order.findByIdAndUpdate(req.body.orderId, { status: "Completed" });
+    res.status(200).json({ message: "Order marked as completed" });
+  } catch (error) {
+    res.status(500).json({ message: "Error completing order", error });
+  }
+});
 
-//     await newOrder.save();
-//     res.status(201).json({ message: "Order placed successfully!" });
-//   } catch (error) {
-//     console.error("❌ Order Placement Error:", error);
-//     res.status(500).json({ error: "Server error" });
-//   }
-// });
-
-// module.exports = router;
+module.exports = router;

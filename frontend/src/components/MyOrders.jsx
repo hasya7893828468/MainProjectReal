@@ -1,54 +1,77 @@
 import {useEffect, useState} from 'react';
 import axios from 'axios';
 
-const VendorDashboard = () => {
+const MyOrders = () => {
   const [orders, setOrders] = useState ([]);
   const vendorId = localStorage.getItem ('vendorId');
+  const userId = localStorage.getItem ('userId'); // Get the logged-in user ID
+  const userName = localStorage.getItem ('userName'); // Get the logged-in user name
+  // Function to check if the order is older than 3 minutes
+  // const isOrderOlderThanThreeMinutes = (orderDate) => {
+  //     const currentDate = new Date();
+  //     const orderDateObj = new Date(orderDate);
+  //     const differenceInTime = currentDate - orderDateObj;
+  //     const differenceInMinutes = differenceInTime / (1000 * 60); // Convert time to minutes
+  //     return differenceInMinutes > 3; // Return true if the order is older than 3 minutes
+  //   };
+
+  // Fetch orders when component mounts
+  //   useEffect(() => {
+  //     if (vendorId && userId && userName) {
+  //       axios
+  //         .get(`http://localhost:5000/api/vendor-cart/${vendorId}`)
+  //         .then((response) => {
+  //           // Filter orders to only show those that belong to the current logged-in user
+  //           const userOrders = response.data.filter(
+  //             (order) => order.userId === userId && order.userName === userName
+  //           );
+
+  //           // Remove orders that are older than 3 minutes
+  //           const filteredOrders = userOrders.filter(
+  //             (order) => !isOrderOlderThanThreeMinutes(order.createdAt)
+  //           );
+  //           setOrders(filteredOrders);
+  //         })
+  //         .catch((error) => console.error('❌ Error fetching orders:', error));
+  //     }
+  //   }, [vendorId, userId, userName]);
+
+  // Function to check if the order is older than 2 days
+  const isOrderOlderThanTwoDays = orderDate => {
+    const currentDate = new Date ();
+    const orderDateObj = new Date (orderDate);
+    const differenceInTime = currentDate - orderDateObj;
+    const differenceInDays = differenceInTime / (1000 * 3600 * 24); // Convert time to days
+    return differenceInDays > 2;
+  };
 
   // Fetch orders when component mounts
   useEffect (
     () => {
-      if (vendorId) {
+      if (vendorId && userId && userName) {
         axios
           .get (`http://localhost:5000/api/vendor-cart/${vendorId}`)
-          .then (response => setOrders (response.data))
+          .then (response => {
+            // Filter orders to only show those that belong to the current logged-in user
+            const userOrders = response.data.filter (
+              order => order.userId === userId && order.userName === userName
+            );
+
+            // Remove orders that are older than 2 days
+            const filteredOrders = userOrders.filter (
+              order => !isOrderOlderThanTwoDays (order.createdAt)
+            );
+            setOrders (filteredOrders);
+          })
           .catch (error => console.error ('❌ Error fetching orders:', error));
       }
     },
-    [vendorId]
+    [vendorId, userId, userName]
   );
-
-  // Handle complete delivery action
-  const handleCompleteDelivery = orderId => {
-    // Optimistic update: immediately update the order status to "Completed" in the UI
-    setOrders (prevOrders =>
-      prevOrders.map (
-        order =>
-          order._id === orderId ? {...order, status: 'Completed'} : order
-      )
-    );
-
-    // Then make the API call to update the order in the backend
-    axios
-      .post ('http://localhost:5000/api/vendor-cart/complete-order', {orderId})
-      .then (() => {
-        console.log ('✅ Order Successfully Completed');
-      })
-      .catch (error => {
-        console.error ('❌ Error completing order:', error);
-        // Rollback the optimistic update if the API call fails
-        setOrders (prevOrders =>
-          prevOrders.map (
-            order =>
-              order._id === orderId ? {...order, status: 'Pending'} : order
-          )
-        );
-      });
-  };
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-bold text-center mb-6">Vendor Dashboard</h2>
+      <h2 className="text-2xl font-bold text-center mb-6">My Orders</h2>
 
       {/* Orders List */}
       {orders.length === 0
@@ -115,15 +138,6 @@ const VendorDashboard = () => {
                 >
                   Status: {order.status}
                 </p>
-
-                {/* Complete Order Button */}
-                {order.status === 'Pending' &&
-                  <button
-                    onClick={() => handleCompleteDelivery (order._id)}
-                    className="mt-4 w-full bg-green-500 text-white p-2 rounded-lg hover:bg-green-700"
-                  >
-                    ✅ Complete Order
-                  </button>}
               </div>
             ))}
           </div>}
@@ -131,4 +145,4 @@ const VendorDashboard = () => {
   );
 };
 
-export default VendorDashboard;
+export default MyOrders;

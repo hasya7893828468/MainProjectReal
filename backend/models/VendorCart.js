@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const Order = require("../models/OrderModel"); // ✅ Import the model
+
 
 const OrderSchema = new mongoose.Schema({
   vendorId: { type: mongoose.Schema.Types.ObjectId, ref: 'Vendor', required: true },
@@ -16,4 +18,4 @@ const OrderSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model('Order', OrderSchema);
+module.exports = Order

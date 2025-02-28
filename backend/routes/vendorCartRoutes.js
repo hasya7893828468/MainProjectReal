@@ -1,48 +1,27 @@
 const express = require("express");
-const VendorCart = require("../models/VendorCart");
-
 const router = express.Router();
+const VendorOrder = require("../models/VendorOrder");
 
-// ✅ Store Order in Vendor's Cart (Include userName)
+// ✅ Add New Order
 router.post("/add-order", async (req, res) => {
   try {
     const { vendorId, userId, userName, cartItems } = req.body;
 
-    if (!vendorId || !userId || !userName || !cartItems || cartItems.length === 0) {
-      return res.status(400).json({ error: "All fields are required" });
+    if (!vendorId || !userId || !cartItems || cartItems.length === 0) {
+      return res.status(400).json({ message: "Missing required fields" });
     }
 
-    const newOrder = new VendorCart({
-      vendorId,
-      userId,
-      userName,  // ✅ Save userName
-      cartItems,
-      createdAt: new Date(), // ✅ Save Order Date
-    });
+    console.log("🛍️ Adding new order:", { vendorId, userId, userName, cartItems });
+
+    const newOrder = new VendorOrder({ vendorId, userId, userName, cartItems });
 
     await newOrder.save();
 
-    res.status(201).json({ message: "Order placed successfully!" });
+    console.log("✅ Order successfully added");
+    res.status(201).json({ message: "Order added successfully", order: newOrder });
   } catch (error) {
-    console.error("❌ Error placing order:", error);
-    res.status(500).json({ error: "Server error" });
-  }
-});
-
-// ✅ Fetch Vendor's Orders (Include userName)
-router.get("/:vendorId", async (req, res) => {
-  try {
-    const { vendorId } = req.params;
-    const orders = await VendorCart.find({ vendorId });
-
-    if (!orders.length) {
-      return res.status(404).json({ message: "No orders found" });
-    }
-
-    res.status(200).json(orders);
-  } catch (error) {
-    console.error("❌ Error fetching orders:", error);
-    res.status(500).json({ error: "Server error" });
+    console.error("❌ Error adding order:", error);
+    res.status(500).json({ message: "Internal Server Error", error });
   }
 });
 

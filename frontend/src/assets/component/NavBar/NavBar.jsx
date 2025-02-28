@@ -12,12 +12,32 @@ const NavBar = ({cart, updateQuantity, removeFromCart}) => {
     setUserName (localStorage.getItem ('userName') || 'Guest');
   }, []);
 
+  useEffect (
+    () => {
+      const handleScroll = () => {
+        setIsCartOpen (false);
+        setIsMenuOpen (false);
+      };
+
+      if (isCartOpen || isMenuOpen) {
+        window.addEventListener ('scroll', handleScroll);
+      } else {
+        window.removeEventListener ('scroll', handleScroll);
+      }
+
+      return () => window.removeEventListener ('scroll', handleScroll);
+    },
+    [isCartOpen, isMenuOpen]
+  ); // ✅ Runs only when cart/menu is open
+
   const toggleCart = () => {
     setIsCartOpen (prev => !prev);
+    setIsMenuOpen (false); // Close menu if cart is opening
   };
 
   const toggleMenu = () => {
     setIsMenuOpen (prev => !prev);
+    setIsCartOpen (false); // Close cart if menu is opening
   };
 
   const totalAmount = cart.reduce (
@@ -27,9 +47,8 @@ const NavBar = ({cart, updateQuantity, removeFromCart}) => {
   const handleOrderNow = async () => {
     const vendorId = localStorage.getItem ('vendorId');
     const userId = localStorage.getItem ('userId');
-    const userName = localStorage.getItem ('userName'); // ✅ Get user's name
 
-    if (!vendorId || !userId || !userName) {
+    if (!vendorId || !userId) {
       alert ('User not logged in properly!');
       return;
     }
@@ -37,7 +56,7 @@ const NavBar = ({cart, updateQuantity, removeFromCart}) => {
     const orderData = {
       vendorId,
       userId,
-      userName, // ✅ Ensure userName is sent
+      userName,
       cartItems: cart.map (item => ({
         name: item.name,
         img: item.img,
@@ -47,14 +66,11 @@ const NavBar = ({cart, updateQuantity, removeFromCart}) => {
       })),
     };
 
-    console.log ('📦 Sending Order Data:', orderData); // ✅ Debugging Step
-
     try {
-      const response = await axios.post (
+      await axios.post (
         'http://localhost:5000/api/vendor-cart/add-order',
         orderData
       );
-      console.log ('✅ Order Response:', response.data);
       alert ('Order placed successfully!');
     } catch (error) {
       console.error ('❌ Order error:', error);
@@ -82,15 +98,21 @@ const NavBar = ({cart, updateQuantity, removeFromCart}) => {
           </div>
 
           {/* Login, Signup (Visible on Large Screens) */}
-          <div className="hidden lg:flex items-center space-x-4">
+          <div className="hidden lg:flex items-center space-x-4 ml-auto">
+            {' '}{/* ✅ Align Right */}
             <Link to="/login">
-              <button className="bg-amber-500 hover:bg-amber-500 text-white px-6 py-1 rounded-full transition-all transform hover:scale-105">
+              <button className="bg-amber-500 hover:bg-amber-600 text-white px-6 py-1 rounded-full transition-all transform hover:scale-105">
                 Login
               </button>
             </Link>
             <Link to="/signup">
-              <button className="bg-amber-500 hover:bg-amber-500 text-white px-6 py-1 rounded-full transition-all transform hover:scale-105">
+              <button className="bg-amber-500 hover:bg-amber-600 text-white px-6 py-1 rounded-full transition-all transform hover:scale-105">
                 Sign Up
+              </button>
+            </Link>
+            <Link to="/user-orders">
+              <button className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-md">
+                📦 My Orders
               </button>
             </Link>
           </div>
@@ -120,6 +142,11 @@ const NavBar = ({cart, updateQuantity, removeFromCart}) => {
           <Link to="/signup">
             <button className="bg-amber-500 hover:bg-amber-500 text-white w-full px-4 py-2 rounded-md">
               Sign Up
+            </button>
+          </Link>
+          <Link to="/user-orders">
+            <button className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-md">
+              📦 My Orders
             </button>
           </Link>
         </div>}
@@ -198,7 +225,7 @@ const NavBar = ({cart, updateQuantity, removeFromCart}) => {
           </span>
           <button
             onClick={handleOrderNow}
-            className=" bg-amber-500 hover:bg-green-700 text-white px-4 py-2 rounded-md transition-all"
+            className="bg-amber-500 hover:bg-green-700 text-white px-4 py-2 rounded-md"
           >
             🛍️ Order Now
           </button>

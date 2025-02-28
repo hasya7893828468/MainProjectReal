@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import axios from 'axios';
 import {Plus, Search} from 'lucide-react';
+import {Link} from 'react-router-dom';
 
 const CardAdd = ({addToCart}) => {
   const [cardData, setCardData] = useState ([]);
@@ -20,6 +21,8 @@ const CardAdd = ({addToCart}) => {
 
   return (
     <div className="mt-20 px-4">
+
+    
       {/* Search Bar */}
       <div className="mb-4 flex items-center bg-white shadow p-2 rounded-md w-full max-w-lg mx-auto">
         <Search className="w-5 h-5 text-gray-500 mr-2" />
