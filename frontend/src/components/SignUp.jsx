@@ -1,8 +1,6 @@
 import {useState} from 'react';
 import axios from 'axios';
-import {Link, useNavigate} from 'react-router-dom'; // Import useNavigate hook for redirection
-// import img
-//   from '../../public/Powerful eagle HD wallpaper 4K free download for Desktop laptop and Phones.jpeg';
+import {Link, useNavigate} from 'react-router-dom';
 
 const apiUrl = 'http://localhost:5000/api/auth/register';
 
@@ -10,17 +8,24 @@ const SignUp = () => {
   const [name, setName] = useState ('');
   const [email, setEmail] = useState ('');
   const [password, setPassword] = useState ('');
-  const navigate = useNavigate (); // Initialize the navigate function
+  const [address, setAddress] = useState ('');
+  const [phone, setPhone] = useState ('');
+  const navigate = useNavigate ();
 
   const handleSubmit = async e => {
     e.preventDefault ();
     try {
-      // Send POST request to register the user
-      const response = await axios.post (apiUrl, {name, email, password});
+      const response = await axios.post (apiUrl, {
+        name,
+        email,
+        password,
+        address,
+        phone,
+      });
       console.log (response.data);
 
-      // If registration is successful, redirect to the main page (home or dashboard)
-      navigate ('/main'); // Adjust the route path accordingly
+      // Redirect to the created user's account page
+      navigate (`/`); // Assuming userId is returned after successful registration
     } catch (error) {
       console.error ('Error:', error);
       alert ('Registration failed. Please check your backend.');
@@ -39,7 +44,7 @@ const SignUp = () => {
             <input
               type="text"
               value={name}
-              onChange={e => setName (e.target.value)} // Update name state
+              onChange={e => setName (e.target.value)}
               required
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
             />
@@ -52,7 +57,7 @@ const SignUp = () => {
             <input
               type="email"
               value={email}
-              onChange={e => setEmail (e.target.value)} // Update email state
+              onChange={e => setEmail (e.target.value)}
               required
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
             />
@@ -65,7 +70,33 @@ const SignUp = () => {
             <input
               type="password"
               value={password}
-              onChange={e => setPassword (e.target.value)} // Update password state
+              onChange={e => setPassword (e.target.value)}
+              required
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Address:
+            </label>
+            <input
+              type="text"
+              value={address}
+              onChange={e => setAddress (e.target.value)}
+              required
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Phone:
+            </label>
+            <input
+              type="text"
+              value={phone}
+              onChange={e => setPhone (e.target.value)}
               required
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
             />

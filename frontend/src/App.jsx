@@ -8,6 +8,9 @@ import VendorSignUp from './components/VenderSignup';
 import VendorDashboard from './components/VendorDashboard';
 import UserOrders from './components/MyOrders';
 import CompletedOrders from './components/CompletedOrders';
+import Profile from './assets/component/NavBar/Profile';
+// import VendorLocation from './components/VendorLocation';
+// import UserProfile from './components/UserProfile';
 // import About from './components/About';
 
 const App = () => {
@@ -20,6 +23,14 @@ const App = () => {
         <Route path="/main" element={<MainPage />} />
         <Route path="/" element={<Login />} />
         <Route path="/user-orders" element={<UserOrders />} />
+        <Route path="/profile" element={<Profile />} />
+
+        {/* <Route path="/user/:userId" element={<UserProfile />} /> */}
+        {' '}{' '}
+        {/* User Profile Route */}
+
+        {' '}
+        {/* New Profile route */}
 
         {/* <Route path="/ab" element={<About />} /> */}
 

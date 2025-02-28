@@ -4,6 +4,8 @@ const cors = require("cors");
 const connectDB = require("./config/db");
 const path = require("path");
 const orderRoutes = require("./routes/orderRoutes");
+const locationRoutes = require('./routes/location'); 
+const vendorCartRoutes = require("./routes/vendorCart");
 
 
 dotenv.config();
@@ -35,7 +37,9 @@ app.use(cors({
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true
 }));
+app.use("/api/vendor-cart", vendorCartRoutes);
 
+app.use('/api', locationRoutes);
 // ✅ Handle Preflight Requests (CORS)
 app.options("*", cors());
 
@@ -46,7 +50,7 @@ app.use("/api/vendor-cart", orderRoutes);
 
 app.use("/api/user-cart", require("./routes/userCartRoutes"));
 app.use("/api/vendors", require("./routes/vendorRoutes"));
-app.use("/api/vendor-cart", require("./routes/vendorCartRoutes"));
+// app.use("/api/vendor-cart", require("./routes/vendorCartRoutes"));
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/cards", require("./routes/cardRoutes"));
 

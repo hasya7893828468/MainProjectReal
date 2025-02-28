@@ -53,29 +53,49 @@ const NavBar = ({cart, updateQuantity, removeFromCart}) => {
       return;
     }
 
-    const orderData = {
-      vendorId,
-      userId,
-      userName,
-      cartItems: cart.map (item => ({
-        name: item.name,
-        img: item.img,
-        price: item.price,
-        quantity: item.quantity,
-        totalPrice: item.price * item.quantity,
-      })),
-    };
+    // Get precise user location before placing the order
+    navigator.geolocation.getCurrentPosition (
+      async position => {
+        const userLocation = {
+          latitude: position.coords.latitude.toFixed (6), // ✅ Exact Lat
+          longitude: position.coords.longitude.toFixed (6), // ✅ Exact Lng
+          accuracy: position.coords.accuracy.toFixed (2), // ✅ Accuracy in meters
+        };
 
-    try {
-      await axios.post (
-        'http://localhost:5000/api/vendor-cart/add-order',
-        orderData
-      );
-      alert ('Order placed successfully!');
-    } catch (error) {
-      console.error ('❌ Order error:', error);
-      alert ('Failed to place order');
-    }
+        console.log ('📍 Exact User Location:', userLocation);
+
+        const orderData = {
+          vendorId,
+          userId,
+          userName,
+          userLocation, // ✅ Send precise user location
+          cartItems: cart.map (item => ({
+            name: item.name,
+            img: item.img,
+            price: item.price,
+            quantity: item.quantity,
+            totalPrice: item.price * item.quantity,
+          })),
+        };
+
+        try {
+          const response = await axios.post (
+            'http://localhost:5000/api/vendor-cart/add-order',
+            orderData
+          );
+          console.log ('✅ Order placed successfully:', response.data);
+          alert ('✅ Order placed successfully!');
+        } catch (error) {
+          console.error ('❌ Order error:', error);
+          alert ('Failed to place order');
+        }
+      },
+      error => {
+        console.error ('❌ Location error:', error);
+        alert ('⚠️ Failed to fetch location. Please allow location access.');
+      },
+      {enableHighAccuracy: true, timeout: 15000, maximumAge: 0} // ✅ Ensure high accuracy
+    );
   };
 
   return (
@@ -86,7 +106,13 @@ const NavBar = ({cart, updateQuantity, removeFromCart}) => {
           <div className="flex items-center space-x-2">
             <ShoppingBag className="w-8 h-8 text-black" />
             <span className="font-bold text-xl text-amber-500">ShivaStore</span>
-            <span className="text-gray-600 text-sm ml-3">👤 {userName}</span>
+            <Link
+              to="/profile"
+              className="flex items-center gap-2 px-4 py-2 bg-white text-gray-700 text-sm font-medium rounded-lg shadow-md border border-gray-300 hover:shadow-lg hover:border-gray-500 transition-all duration-300 transform hover:scale-105"
+            >
+              👤 {userName}
+            </Link>
+
           </div>
 
           {/* Toggle Menu Icon for Small Screens */}
